@@ -1,0 +1,137 @@
+#!/bin/bash
+
+#####################################################################################################################
+# HW 003 CSE 224 Fall 2020 Oct 4 2020 Alexandr Kochenkov
+#
+#Stick Picking Game
+#Here you take turns picking sticks against a computer
+#You can take 1 to 4 sticks each turn
+#Last person to take the sticks wins.
+######################################################################################################################
+
+# Greets the player and maybe tells them how much to draw
+
+echo -e "\nHello player, this is a stick game where on your turn you can take 1 to 4 sticks. Good luck. (Don't try too hard, cause I will win. Haha.)\n"
+
+
+# determines who will go first
+function whoGoesFirst {
+
+  read -p "Who should go first (u for user, c for computer): " response
+  while [[ "$response" != "c" ]] && [[ "$response" != "u" ]] # goes until there is a break out of the loop
+  do
+    read -p "Who should go first (u for user, c for computer): " response  
+  done
+
+  echo "$response"
+
+}
+
+# How many sticks??
+function howManySticks {
+
+  read -p "How many sticks do you want to play with (at least 10):  " numSticks
+  while [[ "$numSticks" -lt 10 ]]
+  do
+    read -p "How many sticks do you want to play with (at least 10 please.):  " numSticks
+  done
+  
+  echo "$numSticks"
+
+}
+
+# Printing out the pipes
+function printPipes  {
+count=0
+
+while [[ $count != $amountofSticks ]]
+do
+echo -n "|"
+count=$(( $count + 1))
+done
+
+echo "($amountofSticks)"
+
+}
+
+# computer move turn
+computerMove () {
+      computerMove=$(($amountofSticks%5))
+      if [[ $computerMove == 0  ]]
+      then
+       computerMove=1
+      fi
+      echo "I take $computerMove sticks."
+      amountofSticks=$(($amountofSticks - $computerMove))
+      printPipes
+      if [[ $amountofSticks == 0 ]]
+      then 
+        echo "Computer won."
+        echo "Haha, I won."
+        break
+      fi
+} 
+
+# player turn along with if cheating
+playerMove () {
+    read -p "How many sticks do you want to take (1-4)?   :"  numberDrawn
+    if [[ "$numberDrawn" -ge "1" ]] && [[ "$numberDrawn" -le "4" ]]
+    then 
+      amountofSticks=$(($amountofSticks - $numberDrawn))
+
+      printPipes
+      if [[ $amountofSticks == 0 ]]
+      then
+        echo "Player won."
+        echo "Lucky."
+        break
+      fi
+    else
+      echo "That is cheating."
+      read -p "How many sticks do you want to take (1-4)?   :"  numberDrawn
+      if [[ "$numberDrawn" -ge "1" ]] && [[ "$numberDrawn" -le "4" ]]
+        then
+           amountofSticks=$(($amountofSticks - $numberDrawn))
+           printPipes
+          if [[ $amountofSticks == 0 ]]
+           then
+             echo "Player won."
+             echo "Lucky."
+             break
+          fi
+      else
+        echo "Fine, you lose!!!"
+        break
+      fi
+    fi 
+}
+
+# this is where the game is run
+play ()  {
+
+while [[ "$amountofSticks" != "0" ]] 
+do
+  if [[ "$firstMove" == "u" ]]
+  then 
+    playerMove
+    computerMove
+  else [[ "$firstMove" == "c" ]]
+    computerMove
+    playerMove
+  fi
+done
+}
+
+
+### main program starts here ###
+amountofSticks=`howManySticks`
+echo "The game will be played with $amountofSticks sticks."
+
+firstMove=`whoGoesFirst`
+echo "First move is <$firstMove>."
+echo -e "Each turn, you can remove 1, 2, 3, or 4 sticks.\nThe last person to take the sticks wins.\nGood luck.\n\n\n"
+
+printSticks=`printPipes`
+echo "Intial pile:     $printSticks"
+
+play
